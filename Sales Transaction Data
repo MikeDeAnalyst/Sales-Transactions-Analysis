@@ -1,0 +1,136 @@
+-- Manager whose region performed best in sales
+Use sales_transaction_data;
+
+Select rm.region,
+	   rm.manager as Region_Manager_Name,
+       round(Sum(st.sales),0) as Total_Regional_sales
+From sales_transaction st
+	Join regional_manager rm
+		On st.region=rm.region
+	Join returned_item ri
+        On st.order_id=ri.order_id
+Where ri.order_status= "Delivered"
+Group by st.region
+Order by Total_regional_sales desc
+Limit 1
+
+
+-- How many times was delivery truck used as the ship mode?
+Use sales_transaction_data;
+
+Select ship_mode,
+	   count(ship_mode) as count_of_ship_mode
+From sales_transaction
+Where ship_mode= "Delivery Truck"
+
+
+-- How many orders were returned and which product category got rejected the most?
+Use sales_transaction_data;
+
+Select ri.returned_id,
+	   ri.sales_id,
+       st. product_category,
+       ri.order_status,
+       count(ri.order_status) as Number_Returned
+From sales_transaction st
+	Join returned_item ri
+		On st.order_id=ri.order_id
+	Where order_status = "Returned"
+    Group by product_category
+    Order by Number_Returned desc
+    
+    
+    -- Year with the least shipping cost
+Use sales_transaction_data;
+
+Select ship_date,
+	   -- min(shipping_cost) as min_shipping_cost
+       shipping_cost as min_shipping_cost
+From sales_transaction
+Where shipping_cost=0.49
+order by ship_date desc
+
+
+-- Day in which customer segment has the most sales
+Use sales_transaction_data;
+
+Select st.real_order_date,
+	   extract(day from st.real_order_date) as order_day,
+	   st.customer_segment,
+       round(sum(st.sales),0) as max_total_sales
+From sales_transaction st
+	Join returned_item ri
+		On st.sales_id=ri.sales_id
+Where ri.order_status= "Delivered"
+Group by customer_segment
+Order by max_total_sales desc
+Limit 1
+
+
+-- Determine profitability by orders delivered
+Use sales_transaction_data;
+
+Select round(sum(sales),0) as total_sales,
+       round(sum(profit),0) as total_profit,
+       order_status
+From sales_transaction st
+	Join returned_item ri
+		On st.sales_id=ri.sales_id
+Where order_status= "Delivered"
+
+
+-- Customer names and persons born in 2011
+Use sales_transaction_data;
+
+Select first_name,
+	   last_name,
+       birth_date
+From sales_transaction
+Where birth_date Between 2011-01-01 And 2011-12-31   -- No one in the record was born in the year 2011
+
+
+-- Aggregate orders made by all customers
+Use sales_transaction_data;
+
+Select first_name,
+	   last_name,
+       sum(order_quantity) as total_order_quantity,
+       round(sum(sales)) as total_sales
+From sales_transaction
+Group by first_name
+Order by first_name
+
+
+-- Products that generates the least profit
+Use sales_transaction_data;
+
+Select st.customer_segment,
+       st.product_category,
+       st.product_sub_category,
+	   round(sum(st.sales),0) as total_sales,
+       round(sum(st.profit),0) as total_profit
+From sales_transaction st
+	Join returned_item ri
+		On ri.sales_id=st.sales_id
+Where order_status= "Delivered"
+Group by product_sub_category
+Order by total_profit
+Limit 10
+
+
+-- Top 2 best selling items
+Use sales_transaction_data;
+
+Select st.customer_segment,
+       st.product_category,
+       st.product_sub_category,
+       sum(st.order_quantity) as total_order_quantity,
+	   round(sum(st.sales),0) as total_sales,
+       round(sum(st.profit),0) as total_profit
+From sales_transaction st
+	Join returned_item ri
+		On st.sales_id=ri.sales_id
+Where order_status= "delivered"
+Group by product_sub_category
+Order by total_profit desc
+Limit 2
