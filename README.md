@@ -1,5 +1,5 @@
 # Sales-Transactions-Analysis
-In this project i was tasked to find and make reports for the following
+In this project i was tasked to analyse the sales dataset of a mini store to find and make reports for the following
 
 *Manager whoes region performed best in sales
 *Number of times when delivery truck was used as the shipment mode
